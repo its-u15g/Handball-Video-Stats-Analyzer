@@ -1162,13 +1162,13 @@
                 
                 tr.innerHTML = `
                     <td class="py-1 px-1">
-                        <input type="text" value="${p.number}" onchange="updateTempPlayerData(${index}, 'number', this.value)" 
+                        <input type="text" value="${p.number}" oninput="updateTempPlayerData(${index}, 'number', this.value)" 
                                class="w-12 bg-slate-900 border border-slate-700 text-center font-mono text-xs rounded py-0.5 text-slate-200 focus:border-indigo-500">
                     </td>
                     <td class="py-1 px-1">
                         <div class="flex items-center gap-1.5">
                             <span class="text-[9px] px-1 bg-slate-800 text-indigo-300 rounded font-bold">${roleBadge}</span>
-                            <input type="text" value="${p.name}" onchange="updateTempPlayerData(${index}, 'name', this.value)" 
+                            <input type="text" value="${p.name}" oninput="updateTempPlayerData(${index}, 'name', this.value)" 
                                    class="flex-1 bg-slate-900 border border-slate-700 text-xs rounded px-2 py-0.5 text-slate-200 focus:border-indigo-500">
                         </div>
                     </td>
@@ -1219,14 +1219,22 @@
         }
 
         function saveRosterSettings() {
-            editingRosterTemp[currentModalEditTeam].name = document.getElementById('rosterEditTeamName').value.trim() || editingRosterTemp[currentModalEditTeam].name;
+            // 現在開いているタブのチーム名を一時データへ同期
+            const currentNameInput = document.getElementById('rosterEditTeamName');
+            if (currentNameInput) {
+                editingRosterTemp[currentModalEditTeam].name = currentNameInput.value.trim() || editingRosterTemp[currentModalEditTeam].name;
+            }
+
+            // 編集結果をメインデータへ反映
             teamsData = JSON.parse(JSON.stringify(editingRosterTemp));
 
+            // 表示名の更新
             document.getElementById('labelTeamHome').textContent = `${teamsData.home.name} (HOME)`;
             document.getElementById('labelTeamGuest').textContent = `${teamsData.guest.name} (GUEST)`;
             document.getElementById('dashHomeTitle').textContent = `${teamsData.home.name} (HOME)`;
             document.getElementById('dashGuestTitle').textContent = `${teamsData.guest.name} (GUEST)`;
 
+            saveLocal();
             closeRosterModal();
             renderFormationAndBench();
             renderLogs();
@@ -1234,95 +1242,66 @@
             showToast("ロースター設定を保存・更新しました");
         }
 
-        function closeRosterModal() {
-            document.getElementById('rosterModal').classList.add('hidden');
-        }
-
-        function saveRosterSettings() {
-            const hName = document.getElementById('inputHomeName').value.trim();
-            const gName = document.getElementById('inputGuestName').value.trim();
-            if (hName) teamsData.home.name = hName;
-            if (gName) teamsData.guest.name = gName;
-
-            document.getElementById('labelTeamHome').textContent = `${teamsData.home.name} (HOME)`;
-            document.getElementById('labelTeamGuest').textContent = `${teamsData.guest.name} (GUEST)`;
-            
-            saveLocal();
-            closeRosterModal();
-            renderLogs();
-            updateDashboard();
-            showToast("チーム名を保存しました");
-        }
-
         function exportCSV() {
             if (logs.length === 0) {
                 showToast("出力するログがありません");
                 return;
             }
-            let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
-            csvContent += "ID,秒数,表示時間,チームID,チーム名,背番号,選手名,区分,結果,エリア,相手GK番号,相手GK名\n";
+            const headers = ["ID", "秒数", "表示時間", "チームID", "チーム名", "背番号", "選手名", "区分", "結果", "エリア", "相手GK番号", "相手GK名"];
+            const rows = logs.map(l => [
+                l.id, l.sec.toFixed(1), `"${l.timeStr}"`, `"${l.team}"`, `"${l.teamName}"`,
+                `"${l.num}"`, `"${l.name}"`, `"${l.category}"`, `"${l.result}"`, `"${l.zone}"`,
+                `"${l.oppGkNum}"`, `"${l.oppGkName}"`
+            ]);
 
-            logs.forEach(l => {
-                const row = [
-                    l.id,
-                    l.sec.toFixed(1),
-                    `"${l.timeStr}"`,
-                    `"${l.team}"`,
-                    `"${l.teamName}"`,
-                    `"${l.num}"`,
-                    `"${l.name}"`,
-                    `"${l.category}"`,
-                    `"${l.result}"`,
-                    `"${l.zone}"`,
-                    `"${l.oppGkNum}"`,
-                    `"${l.oppGkName}"`
-                ].join(",");
-                csvContent += row + "\n";
-            });
-
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `Handball_Stats_${new Date().toISOString().slice(0,10)}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            showToast("CSVを出力しました");
+            const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+            const bom = new Uint8Array([0xEF, 0xBB, 0xBF]); // Excel文字化け防止
+            const blob = new Blob([bom, csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Handball_Stats_${new Date().toISOString().slice(0,10)}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            showToast("CSVファイルを出力しました");
         }
 
+        // --- 永続化 & ローカルストレージ連携 ---
         function saveLocal() {
             try {
-                localStorage.setItem('hb_pure_teams', JSON.stringify(teamsData));
-                localStorage.setItem('hb_pure_logs', JSON.stringify(logs));
+                localStorage.setItem('hb_stats_teams_v3', JSON.stringify(teamsData));
+                localStorage.setItem('hb_stats_logs_v3', JSON.stringify(logs));
             } catch(e) {}
         }
 
         function loadLocal() {
             try {
-                const t = localStorage.getItem('hb_pure_teams');
-                const l = localStorage.getItem('hb_pure_logs');
+                const t = localStorage.getItem('hb_stats_teams_v3');
+                const l = localStorage.getItem('hb_stats_logs_v3');
                 if (t) teamsData = JSON.parse(t);
                 if (l) logs = JSON.parse(l);
             } catch(e) {}
         }
 
-        function showToast(message) {
-            let toast = document.getElementById('toastNotification');
-            if (!toast) {
-                toast = document.createElement('div');
-                toast.id = 'toastNotification';
-                toast.className = 'fixed bottom-4 right-4 bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-lg z-50 transition-opacity duration-300 opacity-0 pointer-events-none';
-                document.body.appendChild(toast);
+        function showToast(msg) {
+            let el = document.getElementById('toast');
+            if(!el) {
+                el = document.createElement('div');
+                el.id = 'toast';
+                el.className = "fixed bottom-4 right-4 bg-slate-800 border border-slate-700 text-white text-xs font-bold px-3 py-2 rounded-lg shadow-xl opacity-0 transition-opacity pointer-events-none z-50";
+                document.body.appendChild(el);
             }
-            toast.textContent = message;
-            toast.classList.remove('opacity-0');
-            toast.classList.add('opacity-100');
+            el.textContent = msg;
+            el.classList.remove('opacity-0');
+            el.classList.add('opacity-100');
             setTimeout(() => {
-                toast.classList.remove('opacity-100');
-                toast.classList.add('opacity-0');
-            }, 2000);
+                el.classList.remove('opacity-100');
+                el.classList.add('opacity-0');
+            }, 2200);
         }
 
+        // キーボードショートカット操作 (Space: 再生/停止, ←/→: 5秒戻し/送り)
         window.addEventListener('keydown', (e) => {
             if (['input', 'textarea'].includes(document.activeElement.tagName.toLowerCase())) return;
             if (e.code === 'Space') { 
@@ -1336,6 +1315,14 @@
                 seekRelative(5); 
             }
         });
+
+        // アプリ起動時の初期化
+        window.onload = function() {
+            loadLocal();
+            selectTeam('home');
+            renderLogs();
+            updateDashboard();
+        };
     </script>
 </body>
 </html>
