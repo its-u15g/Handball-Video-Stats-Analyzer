@@ -217,7 +217,7 @@
 
     .right-content {
       flex: 1;
-      padding: 12px;
+      padding: 10px 12px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
@@ -228,7 +228,7 @@
       background: #0f172a;
       border: 1px solid #1e293b;
       border-radius: 6px;
-      padding: 10px 12px;
+      padding: 8px 10px;
     }
     .panel-header {
       font-size: 11px;
@@ -237,19 +237,19 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
 
     /* 選手カードグリッド */
     .player-grid {
       display: grid;
       grid-template-columns: repeat(6, 1fr);
-      gap: 6px;
+      gap: 5px;
     }
     .player-card {
       background: #1e293b;
       border: 1px solid #334155;
-      padding: 6px 4px;
+      padding: 5px 3px;
       text-align: center;
       border-radius: 4px;
       cursor: pointer;
@@ -264,79 +264,87 @@
       border-color: #f43f5e;
     }
     .p-num { font-size: 13px; font-weight: 700; color: #fff; font-family: monospace; }
-    .p-name { font-size: 10px; color: #cbd5e1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+    .p-name { font-size: 10px; color: #cbd5e1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
     .p-pos { font-size: 9px; color: #64748b; font-family: monospace; }
 
-    /* コート図（インタラクティブ） */
+    /* =========================================
+       新・コート図（9分割＋7mスロー配置）
+       ========================================= */
     .court-board {
       position: relative;
       width: 100%;
-      height: 175px;
-      background: #132238;
+      height: 215px;
+      background: #0f1e36;
       border: 2px solid #334155;
       border-radius: 6px;
       overflow: hidden;
       display: flex;
       flex-direction: column;
     }
-    .court-goal-area {
+    .court-goal-bar {
       position: absolute;
       top: 0; left: 50%;
       transform: translateX(-50%);
-      width: 90px;
-      height: 14px;
+      width: 110px;
+      height: 12px;
       background: #475569;
-      border-bottom: 2px solid #cbd5e1;
+      border-bottom: 2px solid #f8fafc;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 9px;
-      font-weight: 700;
+      font-size: 8px;
+      font-weight: 800;
       color: #f8fafc;
       letter-spacing: 0.1em;
+      z-index: 1;
     }
+    /* 6m / 9m ライン */
     .court-6m-arc {
       position: absolute;
       top: 0; left: 50%;
       transform: translateX(-50%);
-      width: 280px;
-      height: 75px;
+      width: 290px;
+      height: 82px;
       border-bottom: 2px solid #38bdf8;
       border-left: 2px solid #38bdf8;
       border-right: 2px solid #38bdf8;
-      border-bottom-left-radius: 140px 75px;
-      border-bottom-right-radius: 140px 75px;
+      border-bottom-left-radius: 145px 82px;
+      border-bottom-right-radius: 145px 82px;
       pointer-events: none;
     }
     .court-9m-arc {
       position: absolute;
       top: 0; left: 50%;
       transform: translateX(-50%);
-      width: 360px;
-      height: 120px;
-      border-bottom: 2px dashed rgba(56, 189, 248, 0.5);
-      border-left: 2px dashed rgba(56, 189, 248, 0.5);
-      border-right: 2px dashed rgba(56, 189, 248, 0.5);
-      border-bottom-left-radius: 180px 120px;
-      border-bottom-right-radius: 180px 120px;
+      width: 380px;
+      height: 138px;
+      border-bottom: 2px dashed rgba(56, 189, 248, 0.45);
+      border-left: 2px dashed rgba(56, 189, 248, 0.45);
+      border-right: 2px dashed rgba(56, 189, 248, 0.45);
+      border-bottom-left-radius: 190px 138px;
+      border-bottom-right-radius: 190px 138px;
       pointer-events: none;
     }
+
+    /* エリアボタングリッド */
     .court-hotspots {
       position: absolute;
       inset: 0;
-      display: grid;
-      grid-template-rows: 70px 45px 50px;
-      gap: 2px;
-      padding: 14px 6px 4px 6px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 16px 8px 6px 8px;
+      gap: 4px;
     }
-    .hotspot-row { display: grid; gap: 4px; }
-    .hotspot-row-6m { grid-template-columns: 1fr 1.2fr 1fr; }
-    .hotspot-row-9m { grid-template-columns: 1fr 1fr 1fr; }
-    .hotspot-row-far { grid-template-columns: 1fr 1fr; }
-
+    .court-row-3 {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr 1fr;
+      gap: 4px;
+      flex: 1;
+    }
     .btn-court-zone {
-      background: rgba(15, 23, 42, 0.6);
-      border: 1px solid rgba(51, 65, 85, 0.7);
+      background: rgba(15, 23, 42, 0.72);
+      border: 1px solid rgba(51, 65, 85, 0.85);
       color: #e2e8f0;
       font-size: 11px;
       font-weight: 600;
@@ -347,24 +355,41 @@
       backdrop-filter: blur(1px);
     }
     .btn-court-zone:hover {
-      background: rgba(56, 189, 248, 0.2);
+      background: rgba(56, 189, 248, 0.25);
       border-color: #38bdf8;
     }
     .btn-court-zone.active {
-      background: rgba(99, 102, 241, 0.6);
+      background: rgba(99, 102, 241, 0.75);
       border-color: #818cf8;
       color: #fff;
       font-weight: 700;
+      box-shadow: 0 0 8px rgba(99, 102, 241, 0.5);
+    }
+    /* 7mスローボタン（ゴール直下中央） */
+    .btn-7m-slot {
+      height: 22px;
+      background: rgba(2, 132, 199, 0.35);
+      border: 1px solid #0284c7;
+      color: #bae6fd;
+      font-size: 10px;
+      font-weight: 700;
+      margin: 0 auto;
+      width: 140px;
+    }
+    .btn-7m-slot.active {
+      background: #0284c7;
+      color: #fff;
+      border-color: #38bdf8;
     }
 
     /* ③ 結果ボタン群（7mスロー含む5分割） */
     .action-row-5 {
       display: grid;
       grid-template-columns: 1.2fr 1.2fr 1fr 1fr 1.4fr;
-      gap: 6px;
+      gap: 5px;
     }
     .btn-act {
-      height: 42px;
+      height: 38px;
       font-size: 12px;
       font-weight: 700;
       color: #fff;
@@ -384,13 +409,13 @@
     .sub-grid-4 {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 6px;
+      gap: 5px;
     }
     .btn-sub {
       background: #1e293b;
       color: #cbd5e1;
       border: 1px solid #334155;
-      height: 32px;
+      height: 30px;
       font-size: 11px;
       font-weight: 600;
       display: flex;
@@ -419,15 +444,15 @@
       width: 100%; border-collapse: collapse; font-size: 11px; font-family: monospace;
     }
     .stats-table th, .stats-table td {
-      padding: 7px 10px; border-bottom: 1px solid #1e293b; text-align: left;
+      padding: 6px 8px; border-bottom: 1px solid #1e293b; text-align: left;
     }
     .stats-table th { background: #0b1329; color: #94a3b8; font-weight: 600; }
     .stats-table tr:hover { background: #1e293b; }
 
-    .kpi-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
-    .kpi-box { background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 10px; }
-    .kpi-subgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; text-align: center; margin-top: 6px; }
-    .kpi-cell { background: #020617; padding: 5px; border-radius: 4px; border: 1px solid #1e293b; }
+    .kpi-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+    .kpi-box { background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 8px; }
+    .kpi-subgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; text-align: center; margin-top: 6px; }
+    .kpi-cell { background: #020617; padding: 4px; border-radius: 4px; border: 1px solid #1e293b; }
 
     /* トースト & モーダル */
     #toast {
@@ -545,32 +570,48 @@
       <!-- TAB 1: 入力 -->
       <div id="tabInput" class="right-content">
 
-        <!-- ① どのエリアから (コート図タップ) -->
+        <!-- ① どのエリアから (9分割 ＋ 7mスロー) -->
         <div class="card-panel">
           <div class="panel-header">
             <span>① どのエリアから (コート上の位置をタップ)</span>
-            <span id="selectedZoneLabel" style="color: #38bdf8; font-weight: 700;">選択中: 6m中央</span>
+            <span id="selectedZoneLabel" style="color: #38bdf8; font-weight: 700;">選択中: ②カットイン・PV</span>
           </div>
 
           <div class="court-board">
-            <div class="court-goal-area">GOAL</div>
+            <div class="court-goal-bar">GOAL</div>
             <div class="court-6m-arc"></div>
             <div class="court-9m-arc"></div>
 
             <div class="court-hotspots">
-              <div class="hotspot-row hotspot-row-6m">
-                <button onclick="setZone('6m左', this)" class="btn-court-zone">6m左</button>
-                <button onclick="setZone('6m中央', this)" class="btn-court-zone active">6m中央 (PV)</button>
-                <button onclick="setZone('6m右', this)" class="btn-court-zone">6m右</button>
+              <!-- ⑩ 7mスロー（ゴール直下に配置） -->
+              <div style="display: flex; justify-content: center; width: 100%;">
+                <button onclick="setZone('⑩7mスロー', this)" class="btn-court-zone btn-7m-slot">⑩ 7mスロー</button>
               </div>
-              <div class="hotspot-row hotspot-row-9m">
-                <button onclick="setZone('9m左', this)" class="btn-court-zone">9m左 (LB)</button>
-                <button onclick="setZone('9m中央', this)" class="btn-court-zone">9m中央 (CB)</button>
-                <button onclick="setZone('9m右', this)" class="btn-court-zone">9m右 (RB)</button>
+
+              <!-- 【近距離層】①左サイド / ②カットイン・PV / ③右サイド -->
+              <div class="court-row-3">
+                <button onclick="setZone('①左サイド', this)" class="btn-court-zone">① 左サイド</button>
+                <button onclick="setZone('②カットイン・PV', this)" class="btn-court-zone active">② カットイン・PV</button>
+                <button onclick="setZone('③右サイド', this)" class="btn-court-zone">③ 右サイド</button>
               </div>
-              <div class="hotspot-row hotspot-row-far">
-                <button onclick="setZone('7mスロー', this)" class="btn-court-zone">7mスロー</button>
-                <button onclick="setZone('速攻', this)" class="btn-court-zone">速攻 (FB)</button>
+
+              <!-- 【ミドル層】④左側ミドル / ⑤中央ミドル / ⑥右側ミドル -->
+              <div class="court-row-3">
+                <button onclick="setZone('④左側ミドル', this)" class="btn-court-zone">④ 左側ミドル</button>
+                <button onclick="setZone('⑤中央ミドル', this)" class="btn-court-zone">⑤ 中央ミドル</button>
+                <button onclick="setZone('⑥右側ミドル', this)" class="btn-court-zone">⑥ 右側ミドル</button>
+              </div>
+
+              <!-- 【ロング層】⑦左側ロング / ⑧中央ロング / ⑨右側ロング -->
+              <div class="court-row-3">
+                <button onclick="setZone('⑦左側ロング', this)" class="btn-court-zone">⑦ 左側ロング</button>
+                <button onclick="setZone('⑧中央ロング', this)" class="btn-court-zone">⑧ 中央ロング</button>
+                <button onclick="setZone('⑨右側ロング', this)" class="btn-court-zone">⑨ 右側ロング</button>
+              </div>
+
+              <!-- 速攻ボタン -->
+              <div style="display: flex; justify-content: center; width: 100%;">
+                <button onclick="setZone('速攻(FB)', this)" class="btn-court-zone" style="height: 20px; font-size: 10px; width: 140px; background: rgba(30, 41, 59, 0.8);">⚡ 速攻 (FB)</button>
               </div>
             </div>
           </div>
@@ -588,7 +629,7 @@
         <!-- ③ 結果 (シュート結果 / 7mスロー / ターンオーバー) -->
         
         <!-- A. OF時の結果パネル -->
-        <div id="actionBoxOF" style="display: flex; flex-direction: column; gap: 10px;">
+        <div id="actionBoxOF" style="display: flex; flex-direction: column; gap: 8px;">
           <div class="card-panel" style="border-color: #065f46;">
             <div class="panel-header">
               <span id="shootResultTitleOF" style="color: #34d399;">③ シュート結果 (自チーム)</span>
@@ -620,7 +661,7 @@
         </div>
 
         <!-- B. DF時の結果パネル -->
-        <div id="actionBoxDF" style="display: none; flex-direction: column; gap: 10px;">
+        <div id="actionBoxDF" style="display: none; flex-direction: column; gap: 8px;">
           <div class="card-panel" style="border-color: #881337;">
             <div class="panel-header">
               <span id="shootResultTitleDF" style="color: #fb7185;">③ 守備・相手シュート結果</span>
@@ -729,7 +770,7 @@
 
   </main>
 
-  <!-- ==================== ロースター設定 & 初期化モーダル（両チーム編集対応） ==================== -->
+  <!-- ==================== ロースター設定 & 初期化モーダル ==================== -->
   <div id="rosterModal" class="modal-overlay" style="display: none;">
     <div class="modal-box">
       <h3 style="margin-bottom: 10px; color: #fff; font-size: 14px;">チーム名 & 選手設定</h3>
@@ -806,15 +847,14 @@
     };
 
     let teamsData = JSON.parse(JSON.stringify(DEFAULT_TEAMS));
-    let currentPhase = 'OF'; // 'OF' or 'DF'
+    let currentPhase = 'OF';
     let selectedPlayer = null;
-    let selectedZone = '6m中央';
+    let selectedZone = '②カットイン・PV';
     let logs = [];
     let currentVideoTime = 0;
     let isPlaying = false;
     let timerInterval = null;
 
-    // --- UI更新 & チーム名反映 ---
     function updateTeamNamesDisplay() {
       const hName = teamsData.home.name;
       const gName = teamsData.guest.name;
@@ -832,7 +872,6 @@
       updateDashboardScoresOnly();
     }
 
-    // --- OF / DF フェーズ切替 ---
     function setPhase(phase) {
       currentPhase = phase;
       selectedPlayer = null;
@@ -869,7 +908,6 @@
       renderPlayerCards();
     }
 
-    // --- 選手カード描画 ---
     function renderPlayerCards() {
       const grid = document.getElementById('activePlayerGrid');
       grid.innerHTML = '';
@@ -909,7 +947,7 @@
       renderPlayerCards();
     }
 
-    // --- ① コート図エリア選択 ---
+    // ① コート図エリア選択（9分割＋7m＋速攻）
     function setZone(zone, btn) {
       selectedZone = zone;
       document.querySelectorAll('.btn-court-zone').forEach(b => b.classList.remove('active'));
@@ -917,7 +955,7 @@
       document.getElementById('selectedZoneLabel').textContent = `選択中: ${zone}`;
     }
 
-    // --- ③ アクション記録 ---
+    // ③ アクション記録
     function recordShoot(teamKey, result) {
       const team = teamsData[teamKey];
       const oppKey = teamKey === 'home' ? 'guest' : 'home';
@@ -992,7 +1030,6 @@
       setPhase(currentPhase === 'OF' ? 'DF' : 'OF');
     }
 
-    // 共通ファウル・ペナルティ記録
     function recordUniversalFoul(foulType) {
       const targetTeamKey = selectedPlayer ? selectedPlayer.teamKey : (currentPhase === 'OF' ? 'home' : 'guest');
       const team = teamsData[targetTeamKey];
@@ -1042,7 +1079,6 @@
       showToast(`${team.name} ${foulType}`);
     }
 
-    // --- YouTube プレイヤー ---
     function extractYouTubeId(url) {
       if (!url) return null;
       url = url.trim();
@@ -1106,7 +1142,6 @@
       document.getElementById('currentTimeDisplay').textContent = formatTime(currentVideoTime);
     }
 
-    // --- ログ & ダッシュボード ---
     function deleteLastLog() {
       if (logs.length === 0) return;
       logs.shift();
@@ -1129,7 +1164,7 @@
       const q = (document.getElementById('logSearchInput')?.value || '').toLowerCase().trim();
       tbody.innerHTML = '';
 
-      const filtered = logs.filter(l => l.name.toLowerCase().includes(q) || l.result.toLowerCase().includes(q) || l.teamName.toLowerCase().includes(q));
+      const filtered = logs.filter(l => l.name.toLowerCase().includes(q) || l.result.toLowerCase().includes(q) || l.teamName.toLowerCase().includes(q) || l.zone.toLowerCase().includes(q));
 
       filtered.forEach(l => {
         const tr = document.createElement('tr');
@@ -1245,7 +1280,6 @@
       if (tabId === 'dashboard') updateDashboard();
     }
 
-    // --- CSVエクスポート ---
     function exportCSV() {
       if (logs.length === 0) { showToast("出力するログがありません"); return; }
       const headers = ["ID", "秒数", "表示時間", "チームID", "チーム名", "背番号", "選手名", "区分", "結果", "エリア", "相手GK番号", "相手GK名"];
@@ -1263,19 +1297,16 @@
       showToast("CSVファイルを出力しました");
     }
 
-    // --- 設定モーダル（両チーム編集対応） ---
     function openRosterModal() {
       document.getElementById('inputHomeName').value = teamsData.home.name;
       document.getElementById('inputGuestName').value = teamsData.guest.name;
 
-      // 自チームテキスト化
       const th = teamsData.home;
       let textHome = `${th.gk.number} ${th.gk.name}\n`;
       Object.keys(th.court).forEach(pos => { textHome += `${th.court[pos].number} ${th.court[pos].name}\n`; });
       th.bench.forEach(b => { textHome += `${b.number} ${b.name}\n`; });
       document.getElementById('bulkRosterHome').value = textHome.trim();
 
-      // 相手チームテキスト化
       const tg = teamsData.guest;
       let textGuest = `${tg.gk.number} ${tg.gk.name}\n`;
       Object.keys(tg.court).forEach(pos => { textGuest += `${tg.court[pos].number} ${tg.court[pos].name}\n`; });
@@ -1320,7 +1351,6 @@
       if (hName) teamsData.home.name = hName;
       if (gName) teamsData.guest.name = gName;
 
-      // 自チームパース
       const linesHome = document.getElementById('bulkRosterHome').value.split('\n').map(l => l.trim()).filter(l => l.length > 0);
       if (linesHome.length >= 7) {
         const parsedH = linesHome.map(line => {
@@ -1335,7 +1365,6 @@
         teamsData.home.bench = parsedH.slice(7);
       }
 
-      // 相手チームパース
       const linesGuest = document.getElementById('bulkRosterGuest').value.split('\n').map(l => l.trim()).filter(l => l.length > 0);
       if (linesGuest.length >= 7) {
         const parsedG = linesGuest.map(line => {
@@ -1360,15 +1389,15 @@
 
     function saveLocal() {
       try {
-        localStorage.setItem('hb_v3_teams', JSON.stringify(teamsData));
-        localStorage.setItem('hb_v3_logs', JSON.stringify(logs));
+        localStorage.setItem('hb_v4_teams', JSON.stringify(teamsData));
+        localStorage.setItem('hb_v4_logs', JSON.stringify(logs));
       } catch(e) {}
     }
 
     function loadLocal() {
       try {
-        const t = localStorage.getItem('hb_v3_teams');
-        const l = localStorage.getItem('hb_v3_logs');
+        const t = localStorage.getItem('hb_v4_teams');
+        const l = localStorage.getItem('hb_v4_logs');
         if (t) teamsData = JSON.parse(t);
         if (l) logs = JSON.parse(l);
       } catch(e) {}
