@@ -133,6 +133,7 @@
       border-bottom: 1px solid #1e293b;
       display: flex;
       gap: 6px;
+      align-items: center;
     }
     .video-input {
       flex: 1;
@@ -149,11 +150,26 @@
       background: #000;
       flex-shrink: 0;
     }
-    .video-box iframe {
+    #player-container, #localVideo {
       position: absolute;
       top: 0; left: 0; width: 100%; height: 100%;
       border: none;
     }
+    .embed-fallback-alert {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.95);
+      color: #f8fafc;
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      text-align: center;
+      gap: 12px;
+      z-index: 10;
+    }
+
     .video-controls {
       padding: 10px 14px;
       background: #0f172a;
@@ -267,9 +283,7 @@
     .p-name { font-size: 10px; color: #cbd5e1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
     .p-pos { font-size: 9px; color: #64748b; font-family: monospace; }
 
-    /* =========================================
-       新・コート図（9分割＋7mスロー配置）
-       ========================================= */
+    /* コート図（9分割＋7mスロー配置） */
     .court-board {
       position: relative;
       width: 100%;
@@ -298,7 +312,6 @@
       letter-spacing: 0.1em;
       z-index: 1;
     }
-    /* 6m / 9m ライン */
     .court-6m-arc {
       position: absolute;
       top: 0; left: 50%;
@@ -326,7 +339,6 @@
       pointer-events: none;
     }
 
-    /* エリアボタングリッド */
     .court-hotspots {
       position: absolute;
       inset: 0;
@@ -365,7 +377,6 @@
       font-weight: 700;
       box-shadow: 0 0 8px rgba(99, 102, 241, 0.5);
     }
-    /* 7mスローボタン（ゴール直下中央） */
     .btn-7m-slot {
       height: 22px;
       background: rgba(2, 132, 199, 0.35);
@@ -382,7 +393,7 @@
       border-color: #38bdf8;
     }
 
-    /* ③ 結果ボタン群（7mスロー含む5分割） */
+    /* ③ 結果ボタン群 */
     .action-row-5 {
       display: grid;
       grid-template-columns: 1.2fr 1.2fr 1fr 1fr 1.4fr;
@@ -478,6 +489,8 @@
     }
     .modal-tab-btn.active { color: #818cf8; border-bottom-color: #6366f1; }
   </style>
+  <!-- YouTube IFrame API 公式ライブラリ -->
+  <script src="[suspicious link removed]"></script>
 </head>
 <body>
 
@@ -520,11 +533,27 @@
       <div class="video-wrapper">
         <div class="video-url-bar">
           <input type="text" id="videoUrlInput" class="video-input" placeholder="YouTube URLまたは共有リンクを入力...">
-          <button onclick="handleLoadVideo()" class="btn-indigo" style="padding: 6px 12px; font-size: 11px;">読込</button>
+          <button onclick="handleLoadVideo()" class="btn-indigo" style="padding: 6px 10px; font-size: 11px;">読込</button>
+          <!-- ローカルMP4選択ボタン -->
+          <label class="btn-secondary" style="padding: 6px 8px; font-size: 11px; cursor: pointer;">
+            MP4ファイル
+            <input type="file" id="localFileInput" accept="video/mp4,video/webm" style="display: none;" onchange="handleLocalFile(event)">
+          </label>
         </div>
 
         <div class="video-box">
-          <iframe id="videoIframe" src="[suspicious link removed]" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+          <div id="player-container"></div>
+          <video id="localVideo" style="display: none;" controls></video>
+          <!-- 外部サイト埋め込み禁止エラー時のフォールバックUI -->
+          <div id="embedFallback" class="embed-fallback-alert">
+            <div style="font-weight: 700; color: #f87171; font-size: 13px;">⚠️ YouTube側の設定で埋め込み再生が許可されていません</div>
+            <div style="font-size: 11px; color: #cbd5e1; max-width: 320px;">
+              この動画の所有者が他サイトでの再生を制限しています。YouTube本体で直接開いて再生し、本アプリのタイマー機能で記録を同期してください。
+            </div>
+            <a id="directYoutubeLink" href="#" target="_blank" class="btn-indigo" style="padding: 8px 16px; text-decoration: none; font-size: 12px; margin-top: 4px;">
+              YouTubeでこの動画を開く ↗
+            </a>
+          </div>
         </div>
 
         <div class="video-controls">
@@ -855,6 +884,187 @@
     let isPlaying = false;
     let timerInterval = null;
 
+    // プレイヤー制御
+    let ytPlayer = null;
+    let isYtReady = false;
+    let activePlayerMode = 'youtube'; // 'youtube' or 'local' or 'manual'
+
+    // --- YouTube APIコールバック ---
+    function onYouTubeIframeAPIReady() {
+      ytPlayer = new YT.Player('player-container', {
+        height: '100%',
+        width: '100%',
+        videoId: 'bN52bO7GjQo', // デフォルト動画
+        playerVars: {
+          'playsinline': 1,
+          'rel': 0,
+          'modestbranding': 1,
+          'origin': window.location.origin
+        },
+        events: {
+          'onReady': onPlayerReady,
+          'onStateChange': onPlayerStateChange,
+          'onError': onPlayerError
+        }
+      });
+    }
+
+    function onPlayerReady(event) {
+      isYtReady = true;
+      updateDurationDisplay();
+    }
+
+    function onPlayerStateChange(event) {
+      if (event.data === YT.PlayerState.PLAYING) {
+        isPlaying = true;
+        document.getElementById('btnPlayPause').textContent = "停止";
+        startTimerPolling();
+      } else {
+        isPlaying = false;
+        document.getElementById('btnPlayPause').textContent = "再生";
+        stopTimerPolling();
+      }
+    }
+
+    function onPlayerError(e) {
+      // エラーコード 101, 150 は埋め込み再生不許可
+      if (e.data === 101 || e.data === 150 || e.data === 2) {
+        const urlInput = document.getElementById('videoUrlInput').value.trim();
+        document.getElementById('embedFallback').style.display = 'flex';
+        document.getElementById('directYoutubeLink').href = urlInput || '[suspicious link removed]';
+        showToast("⚠️ YouTube側で埋め込みが制限されている動画です");
+      }
+    }
+
+    function startTimerPolling() {
+      if (timerInterval) clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        if (activePlayerMode === 'youtube' && ytPlayer && ytPlayer.getCurrentTime) {
+          currentVideoTime = ytPlayer.getCurrentTime();
+        } else if (activePlayerMode === 'local') {
+          const v = document.getElementById('localVideo');
+          currentVideoTime = v.currentTime;
+        } else {
+          currentVideoTime += 0.5;
+        }
+        updateTimeDisplay();
+      }, 500);
+    }
+
+    function stopTimerPolling() {
+      if (timerInterval) clearInterval(timerInterval);
+    }
+
+    function handleLoadVideo() {
+      const input = document.getElementById('videoUrlInput').value.trim();
+      const vid = extractYouTubeId(input);
+      if (!vid) {
+        alert("有効なYouTubeのURLを入力してください。");
+        return;
+      }
+      activePlayerMode = 'youtube';
+      document.getElementById('embedFallback').style.display = 'none';
+      document.getElementById('player-container').style.display = 'block';
+      document.getElementById('localVideo').style.display = 'none';
+
+      if (ytPlayer && ytPlayer.loadVideoById) {
+        ytPlayer.loadVideoById(vid);
+        currentVideoTime = 0;
+        updateTimeDisplay();
+        showToast("動画を読み込みました");
+      } else {
+        // 再初期化
+        document.getElementById('player-container').innerHTML = '';
+        ytPlayer = new YT.Player('player-container', {
+          height: '100%',
+          width: '100%',
+          videoId: vid,
+          playerVars: { 'playsinline': 1, 'rel': 0, 'origin': window.location.origin },
+          events: { 'onReady': onPlayerReady, 'onStateChange': onPlayerStateChange, 'onError': onPlayerError }
+        });
+      }
+    }
+
+    function handleLocalFile(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      activePlayerMode = 'local';
+      document.getElementById('embedFallback').style.display = 'none';
+      document.getElementById('player-container').style.display = 'none';
+      const localVid = document.getElementById('localVideo');
+      localVid.style.display = 'block';
+      localVid.src = URL.createObjectURL(file);
+      localVid.onloadedmetadata = () => {
+        document.getElementById('durationDisplay').textContent = formatTime(localVid.duration);
+      };
+      showToast("ローカル動画を読み込みました");
+    }
+
+    function togglePlayPause() {
+      if (activePlayerMode === 'youtube' && ytPlayer && ytPlayer.getPlayerState) {
+        const state = ytPlayer.getPlayerState();
+        if (state === YT.PlayerState.PLAYING) {
+          ytPlayer.pauseVideo();
+        } else {
+          ytPlayer.playVideo();
+        }
+      } else if (activePlayerMode === 'local') {
+        const v = document.getElementById('localVideo');
+        if (v.paused) { v.play(); isPlaying = true; startTimerPolling(); document.getElementById('btnPlayPause').textContent = "停止"; }
+        else { v.pause(); isPlaying = false; stopTimerPolling(); document.getElementById('btnPlayPause').textContent = "再生"; }
+      } else {
+        isPlaying = !isPlaying;
+        if (isPlaying) { startTimerPolling(); document.getElementById('btnPlayPause').textContent = "停止"; }
+        else { stopTimerPolling(); document.getElementById('btnPlayPause').textContent = "再生"; }
+      }
+    }
+
+    function seekRelative(sec) {
+      if (activePlayerMode === 'youtube' && ytPlayer && ytPlayer.getCurrentTime) {
+        const cur = ytPlayer.getCurrentTime();
+        ytPlayer.seekTo(Math.max(0, cur + sec), true);
+        currentVideoTime = Math.max(0, cur + sec);
+      } else if (activePlayerMode === 'local') {
+        const v = document.getElementById('localVideo');
+        v.currentTime = Math.max(0, v.currentTime + sec);
+        currentVideoTime = v.currentTime;
+      } else {
+        currentVideoTime = Math.max(0, currentVideoTime + sec);
+      }
+      updateTimeDisplay();
+    }
+
+    function setSpeed(rate, btn) {
+      if (activePlayerMode === 'youtube' && ytPlayer && ytPlayer.setPlaybackRate) {
+        ytPlayer.setPlaybackRate(rate);
+      } else if (activePlayerMode === 'local') {
+        document.getElementById('localVideo').playbackRate = rate;
+      }
+      document.querySelectorAll('.video-controls .btn-ctrl').forEach(b => b.style.background = '#1e293b');
+      btn.style.background = '#4f46e5';
+      showToast(`速度: ${rate}x`);
+    }
+
+    function updateTimeDisplay() {
+      document.getElementById('currentTimeDisplay').textContent = formatTime(currentVideoTime);
+    }
+
+    function updateDurationDisplay() {
+      if (ytPlayer && ytPlayer.getDuration) {
+        document.getElementById('durationDisplay').textContent = formatTime(ytPlayer.getDuration());
+      }
+    }
+
+    function extractYouTubeId(url) {
+      if (!url) return null;
+      url = url.trim();
+      const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|live\/|shorts\/))([\w-]{11})/);
+      if (match && match[1]) return match[1];
+      if (/^[\w-]{11}$/.test(url)) return url;
+      return null;
+    }
+
+    // --- UI更新 & チーム名反映 ---
     function updateTeamNamesDisplay() {
       const hName = teamsData.home.name;
       const gName = teamsData.guest.name;
@@ -947,7 +1157,6 @@
       renderPlayerCards();
     }
 
-    // ① コート図エリア選択（9分割＋7m＋速攻）
     function setZone(zone, btn) {
       selectedZone = zone;
       document.querySelectorAll('.btn-court-zone').forEach(b => b.classList.remove('active'));
@@ -955,7 +1164,6 @@
       document.getElementById('selectedZoneLabel').textContent = `選択中: ${zone}`;
     }
 
-    // ③ アクション記録
     function recordShoot(teamKey, result) {
       const team = teamsData[teamKey];
       const oppKey = teamKey === 'home' ? 'guest' : 'home';
@@ -1079,69 +1287,6 @@
       showToast(`${team.name} ${foulType}`);
     }
 
-    function extractYouTubeId(url) {
-      if (!url) return null;
-      url = url.trim();
-      const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|live\/|shorts\/))([\w-]{11})/);
-      if (match && match) return match;
-      if (/^[\w-]{11}$/.test(url)) return url;
-      return null;
-    }
-
-    function sendCommand(func, args = []) {
-      const iframe = document.getElementById('videoIframe');
-      if (iframe && iframe.contentWindow) {
-        iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: func, args: args }), '*');
-      }
-    }
-
-    function handleLoadVideo() {
-      const input = document.getElementById('videoUrlInput').value.trim();
-      const vid = extractYouTubeId(input);
-      if (!vid) {
-        alert("有効なYouTubeのURLを入力してください。");
-        return;
-      }
-      document.getElementById('videoIframe').src = `[suspicious link removed]{vid}?enablejsapi=1`;
-      currentVideoTime = 0;
-      updateTimeDisplay();
-      showToast("動画を読み込みました");
-    }
-
-    function togglePlayPause() {
-      if (isPlaying) {
-        sendCommand('pauseVideo');
-        isPlaying = false;
-        clearInterval(timerInterval);
-        document.getElementById('btnPlayPause').textContent = "再生";
-      } else {
-        sendCommand('playVideo');
-        isPlaying = true;
-        timerInterval = setInterval(() => {
-          currentVideoTime += 0.5;
-          updateTimeDisplay();
-        }, 500);
-        document.getElementById('btnPlayPause').textContent = "停止";
-      }
-    }
-
-    function seekRelative(sec) {
-      currentVideoTime = Math.max(0, currentVideoTime + sec);
-      sendCommand('seekTo', [currentVideoTime, true]);
-      updateTimeDisplay();
-    }
-
-    function setSpeed(rate, btn) {
-      sendCommand('setPlaybackRate', [rate]);
-      document.querySelectorAll('.video-controls .btn-ctrl').forEach(b => b.style.background = '#1e293b');
-      btn.style.background = '#4f46e5';
-      showToast(`速度: ${rate}x`);
-    }
-
-    function updateTimeDisplay() {
-      document.getElementById('currentTimeDisplay').textContent = formatTime(currentVideoTime);
-    }
-
     function deleteLastLog() {
       if (logs.length === 0) return;
       logs.shift();
@@ -1245,7 +1390,7 @@
 
       nums.forEach(n => {
         const pLogs = teamLogs.filter(l => l.num === n);
-        const name = pLogs ? pLogs.name : (teamsData[teamKey].gk.number === n ? teamsData[teamKey].gk.name : `選手 (#${n})`);
+        const name = pLogs[0] ? pLogs[0].name : (teamsData[teamKey].gk.number === n ? teamsData[teamKey].gk.name : `選手 (#${n})`);
         const shots = pLogs.filter(l => l.category === 'シュート');
         const goals = shots.filter(l => l.result === 'ゴール').length;
         const att = shots.length;
@@ -1355,11 +1500,11 @@
       if (linesHome.length >= 7) {
         const parsedH = linesHome.map(line => {
           const parts = line.split(/[\s,]+/);
-          const num = parts || '?';
+          const num = parts[0] || '?';
           const name = parts.slice(1).join(' ') || `選手${num}`;
           return { number: num, name: name };
         });
-        teamsData.home.gk = parsedH;
+        teamsData.home.gk = parsedH[0];
         const positions = ['LW', 'PV', 'RW', 'LB', 'CB', 'RB'];
         positions.forEach((pos, i) => { teamsData.home.court[pos] = parsedH[i + 1]; });
         teamsData.home.bench = parsedH.slice(7);
@@ -1369,11 +1514,11 @@
       if (linesGuest.length >= 7) {
         const parsedG = linesGuest.map(line => {
           const parts = line.split(/[\s,]+/);
-          const num = parts || '?';
+          const num = parts[0] || '?';
           const name = parts.slice(1).join(' ') || `相手${num}`;
           return { number: num, name: name };
         });
-        teamsData.guest.gk = parsedG;
+        teamsData.guest.gk = parsedG[0];
         const positions = ['LW', 'PV', 'RW', 'LB', 'CB', 'RB'];
         positions.forEach((pos, i) => { teamsData.guest.court[pos] = parsedG[i + 1]; });
         teamsData.guest.bench = parsedG.slice(7);
@@ -1389,15 +1534,15 @@
 
     function saveLocal() {
       try {
-        localStorage.setItem('hb_v4_teams', JSON.stringify(teamsData));
-        localStorage.setItem('hb_v4_logs', JSON.stringify(logs));
+        localStorage.setItem('hb_v5_teams', JSON.stringify(teamsData));
+        localStorage.setItem('hb_v5_logs', JSON.stringify(logs));
       } catch(e) {}
     }
 
     function loadLocal() {
       try {
-        const t = localStorage.getItem('hb_v4_teams');
-        const l = localStorage.getItem('hb_v4_logs');
+        const t = localStorage.getItem('hb_v5_teams');
+        const l = localStorage.getItem('hb_v5_logs');
         if (t) teamsData = JSON.parse(t);
         if (l) logs = JSON.parse(l);
       } catch(e) {}
