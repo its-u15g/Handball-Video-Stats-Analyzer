@@ -16,14 +16,14 @@
       overflow: hidden;
       font-size: 13px;
     }
-    button { font-family: inherit; cursor: pointer; border: none; outline: none; border-radius: 6px; transition: all 0.15s ease; }
+    button { font-family: inherit; cursor: pointer; border: none; outline: none; border-radius: 8px; transition: all 0.15s ease; }
     button:hover { opacity: 0.9; transform: translateY(-1px); }
     button:active { opacity: 0.75; transform: translateY(0); }
     input, textarea { font-family: inherit; outline: none; border-radius: 6px; }
 
     /* ヘッダー */
     header {
-      height: 48px; background-color: #0f172a; border-bottom: 1px solid #1e293b;
+      height: 46px; background-color: #0f172a; border-bottom: 1px solid #1e293b;
       display: flex; align-items: center; justify-content: space-between;
       padding: 0 16px; flex-shrink: 0;
     }
@@ -31,7 +31,7 @@
     .badge-ver { font-size: 10px; background: rgba(99, 102, 241, 0.2); color: #a5b4fc; border: 1px solid rgba(99, 102, 241, 0.4); padding: 2px 6px; border-radius: 4px; }
     .score-badge { font-family: monospace; font-size: 13px; font-weight: bold; background: #1e293b; padding: 4px 12px; border-radius: 6px; display: flex; gap: 8px; }
 
-    /* メインレイアウト: 左右50% (1:1) の分割 */
+    /* メインレイアウト: 左右 50% 分割 */
     main {
       flex: 1;
       display: grid;
@@ -40,7 +40,7 @@
     }
 
     /* =========================================
-       左半分: 動画 ＋ 選手カード（下段）
+       左画面: 上段(OF/DF切替) ＋ 下段(動画)
        ========================================= */
     .left-container {
       background: #0b1329;
@@ -48,6 +48,60 @@
       display: flex;
       flex-direction: column;
       height: 100%;
+      overflow: hidden;
+    }
+
+    /* 左上段: OF / DF 巨大切替パネル */
+    .phase-switch-panel {
+      padding: 12px;
+      background: #090e1a;
+      border-bottom: 1px solid #1e293b;
+      flex-shrink: 0;
+    }
+    .phase-title {
+      font-size: 11px;
+      color: #94a3b8;
+      font-weight: bold;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .phase-btn-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .btn-phase {
+      padding: 14px;
+      font-size: 15px;
+      font-weight: 800;
+      color: #94a3b8;
+      background: #1e293b;
+      border: 2px solid #334155;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-phase.active-of {
+      background: linear-gradient(135deg, #1e1b4b, #312e81);
+      border-color: #6366f1;
+      color: #fff;
+      box-shadow: 0 0 14px rgba(99, 102, 241, 0.4);
+    }
+    .btn-phase.active-df {
+      background: linear-gradient(135deg, #450a0a, #881337);
+      border-color: #f43f5e;
+      color: #fff;
+      box-shadow: 0 0 14px rgba(244, 63, 94, 0.4);
+    }
+
+    /* 左下段: 動画プレイヤー & 再生コントロール */
+    .video-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: #020617;
       overflow-y: auto;
     }
     .video-input-bar {
@@ -58,126 +112,37 @@
       gap: 8px;
     }
     .video-input {
-      flex: 1; background: #020617; border: 1px solid #334155; padding: 7px 10px; color: #fff; font-size: 12px;
+      flex: 1; background: #020617; border: 1px solid #334155; padding: 6px 10px; color: #fff; font-size: 12px;
     }
-    .btn-indigo { background: #6366f1; color: #fff; padding: 6px 14px; font-weight: bold; }
-    .btn-secondary { background: #1e293b; color: #cbd5e1; border: 1px solid #334155; padding: 6px 12px; }
-    .btn-success { background: #10b981; color: #fff; padding: 6px 14px; font-weight: bold; }
-    .btn-danger { background: #e11d48; color: #fff; padding: 6px 12px; }
-
-    .video-frame-box {
+    .video-box {
       width: 100%; position: relative; padding-top: 56.25%; background: #000; flex-shrink: 0;
     }
-    .video-frame-box iframe {
+    .video-box iframe {
       position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;
     }
-
     .video-controls {
       padding: 10px 14px;
-      background: #020617;
-      border-bottom: 1px solid #1e293b;
+      background: #0f172a;
+      border-top: 1px solid #1e293b;
       display: flex;
       flex-direction: column;
       gap: 8px;
-      flex-shrink: 0;
     }
     .ctrl-row { display: flex; justify-content: space-between; align-items: center; }
     .time-txt { font-family: monospace; font-size: 14px; font-weight: bold; color: #38bdf8; }
     .btn-ctrl-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr 1.5fr 1fr 1fr;
+      grid-template-columns: 1fr 1fr 1.6fr 1fr 1fr;
       gap: 6px;
     }
     .btn-ctrl { background: #1e293b; color: #f1f5f9; border: 1px solid #334155; padding: 8px 4px; font-size: 11px; font-weight: bold; }
-
-    /* 左下段: 選手交代・コート配置エリア */
-    .roster-card-section {
-      padding: 12px;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      background: #090e1a;
-    }
-    .section-title {
-      font-size: 11px;
-      color: #94a3b8;
-      font-weight: bold;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .court-board {
-      display: grid;
-      grid-template-columns: 90px 1fr;
-      gap: 8px;
-      background: #0f172a;
-      border: 1px solid #1e293b;
-      border-radius: 8px;
-      padding: 8px;
-    }
-    .gk-box {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      border-right: 1px solid #1e293b;
-      padding-right: 6px;
-    }
-    .field-lines {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .field-row {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 6px;
-    }
-
-    .p-card {
-      background: #1e293b;
-      border: 1px solid #334155;
-      border-radius: 6px;
-      padding: 6px 4px;
-      text-align: center;
-      cursor: pointer;
-    }
-    .p-card:hover { border-color: #818cf8; }
-    .p-card.active {
-      background: rgba(99, 102, 241, 0.3) !important;
-      border-color: #6366f1 !important;
-      box-shadow: 0 0 10px rgba(99, 102, 241, 0.6);
-    }
-    .p-card.is-gk { background: #1c1917; border-color: #78350f; width: 100%; }
-    .p-card.is-gk.active { background: #451a03 !important; border-color: #f59e0b !important; }
-
-    .p-pos { font-size: 9px; color: #64748b; font-family: monospace; }
-    .p-num { font-size: 14px; font-weight: 800; color: #fff; font-family: monospace; }
-    .p-name { font-size: 11px; color: #cbd5e1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-    .bench-box {
-      background: #0f172a;
-      border: 1px solid #1e293b;
-      border-radius: 8px;
-      padding: 8px;
-    }
-    .bench-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
-    .bench-item {
-      background: #1e293b;
-      border: 1px solid #334155;
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 11px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      cursor: pointer;
-    }
-    .bench-item.active { border-color: #6366f1; background: rgba(99, 102, 241, 0.25); }
+    .btn-indigo { background: #6366f1; color: #fff; font-weight: bold; }
+    .btn-secondary { background: #1e293b; color: #cbd5e1; border: 1px solid #334155; padding: 6px 12px; }
+    .btn-success { background: #10b981; color: #fff; padding: 6px 14px; font-weight: bold; }
+    .btn-danger { background: #e11d48; color: #fff; padding: 6px 12px; }
 
     /* =========================================
-       右半分: アクション入力・ログ・ダッシュボード
+       右画面: OF / DF 連動アクションボタン群
        ========================================= */
     .right-container {
       background: #020617;
@@ -186,7 +151,7 @@
       height: 100%;
       overflow: hidden;
     }
-    .right-nav-bar {
+    .right-nav {
       background: #0f172a;
       border-bottom: 1px solid #1e293b;
       height: 44px;
@@ -198,33 +163,10 @@
     }
     .tab-group { display: flex; gap: 4px; }
     .tab-btn {
-      background: transparent;
-      color: #94a3b8;
-      border-bottom: 2px solid transparent;
-      padding: 12px 14px;
-      font-size: 12px;
-      font-weight: bold;
-      border-radius: 0;
+      background: transparent; color: #94a3b8; border-bottom: 2px solid transparent;
+      padding: 12px 14px; font-size: 12px; font-weight: bold; border-radius: 0;
     }
     .tab-btn.active { color: #818cf8; border-bottom-color: #6366f1; }
-
-    .team-toggle-box {
-      display: flex;
-      background: #020617;
-      border: 1px solid #1e293b;
-      border-radius: 6px;
-      padding: 2px;
-      gap: 2px;
-    }
-    .team-btn {
-      padding: 5px 12px;
-      font-size: 12px;
-      font-weight: bold;
-      color: #94a3b8;
-      background: transparent;
-    }
-    .team-btn.active-home { background: #4f46e5; color: #fff; }
-    .team-btn.active-guest { background: #e11d48; color: #fff; }
 
     .right-content {
       flex: 1;
@@ -232,124 +174,116 @@
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 12px;
     }
 
-    /* 選択状態バナー */
-    .status-banner {
+    /* 共通カード */
+    .card-panel {
       background: #0f172a;
-      border: 1px solid #334155;
-      padding: 10px 14px;
-      border-radius: 8px;
+      border: 1px solid #1e293b;
+      border-radius: 10px;
+      padding: 12px;
+    }
+    .panel-header {
+      font-size: 12px;
+      font-weight: bold;
+      color: #cbd5e1;
       display: flex;
       justify-content: space-between;
       align-items: center;
-    }
-    .target-highlight {
-      font-size: 14px;
-      font-weight: 800;
-      color: #818cf8;
-      background: rgba(99, 102, 241, 0.15);
-      border: 1px solid rgba(99, 102, 241, 0.3);
-      padding: 4px 10px;
-      border-radius: 6px;
+      margin-bottom: 8px;
     }
 
-    /* シュートエリア（大型ボタングリッド） */
-    .zone-container {
-      background: #0f172a;
-      border: 1px solid #1e293b;
-      border-radius: 10px;
-      padding: 12px;
+    /* 選手選択バッジ / クイック選択 */
+    .player-select-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 6px;
     }
+    .p-btn {
+      background: #1e293b;
+      border: 1px solid #334155;
+      padding: 8px 4px;
+      text-align: center;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .p-btn:hover { border-color: #818cf8; }
+    .p-btn.active {
+      background: rgba(99, 102, 241, 0.3);
+      border-color: #6366f1;
+      box-shadow: 0 0 10px rgba(99, 102, 241, 0.6);
+    }
+    .p-btn-num { font-size: 13px; font-weight: 800; color: #fff; font-family: monospace; }
+    .p-btn-name { font-size: 10px; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* シュートエリアボタングリッド */
     .zone-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-      margin-top: 8px;
+      gap: 6px;
     }
-    .btn-zone-large {
+    .btn-zone {
       background: #1e293b;
       color: #cbd5e1;
       border: 1px solid #334155;
-      padding: 12px 6px;
-      font-size: 13px;
+      padding: 10px 4px;
+      font-size: 12px;
       font-weight: bold;
       border-radius: 6px;
     }
-    .btn-zone-large.active {
+    .btn-zone.active {
       background: #4f46e5;
       border-color: #6366f1;
       color: #fff;
-      box-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
     }
 
-    /* シュート結果（超特大ボタン） */
-    .result-container {
-      background: #0f172a;
-      border: 1px solid #1e293b;
-      border-radius: 10px;
-      padding: 12px;
-    }
-    .result-grid {
+    /* 特大アクションボタン（ゴール・セーブ等） */
+    .big-action-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 8px;
-      margin-top: 8px;
     }
-    .btn-result-huge {
-      padding: 16px 8px;
+    .btn-big-action {
+      padding: 16px 4px;
       font-size: 14px;
       font-weight: 800;
       color: #fff;
-      border-radius: 8px;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 4px;
+      border-radius: 8px;
     }
-    .res-goal { background: #059669; }
-    .res-save { background: #d97706; }
-    .res-miss { background: #dc2626; }
-    .res-post { background: #7c3aed; }
+    .act-goal { background: #059669; }
+    .act-save { background: #d97706; }
+    .act-miss { background: #dc2626; }
+    .act-post { background: #7c3aed; }
 
-    /* ターンオーバー & DF反則 */
-    .mistake-container {
-      background: #0f172a;
-      border: 1px solid #1e293b;
-      border-radius: 10px;
-      padding: 12px;
-    }
+    /* ターンオーバー・ミスボタン群 */
     .mistake-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 6px;
-      margin-top: 8px;
     }
-    .btn-mistake {
+    .btn-sub-action {
       background: #1e293b;
       color: #fda4af;
       border: 1px solid #334155;
-      padding: 10px 4px;
+      padding: 9px 4px;
       font-size: 11px;
       font-weight: bold;
     }
-    .foul-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 6px;
-      margin-top: 6px;
-    }
-    .btn-foul-btn {
+    .btn-foul-action {
       background: #3f1515;
       color: #fca5a5;
       border: 1px solid #7f1d1d;
-      padding: 10px 4px;
+      padding: 9px 4px;
       font-size: 11px;
       font-weight: bold;
     }
 
-    /* ログ一覧・ダッシュボードテーブル */
+    /* ログ一覧 & ダッシュボードテーブル */
     .table-box {
       background: #0f172a;
       border: 1px solid #1e293b;
@@ -396,7 +330,7 @@
     <div style="display: flex; align-items: center; gap: 10px;">
       <div class="brand-title">
         <span>🤾 STATS ANALYZER PRO</span>
-        <span class="badge-ver">50:50 SPLIT</span>
+        <span class="badge-ver">OF/DF SYNC</span>
       </div>
       <div class="score-badge">
         <span id="headerHomeScore" style="color: #818cf8;">自チーム 0</span>
@@ -411,175 +345,223 @@
     </div>
   </header>
 
-  <!-- ==================== MAIN (1:1 SPLIT) ==================== -->
+  <!-- ==================== MAIN ==================== -->
   <main>
-    <!-- 左側 (50%): 動画 ＋ 選手カード（下段） -->
+    
+    <!-- 左側 (50%): 上段(OF/DF切替) ＋ 下段(動画) -->
     <section class="left-container">
-      <!-- 動画URL入力 -->
-      <div class="video-input-bar">
-        <input type="text" id="videoUrlInput" class="video-input" placeholder="YouTube動画のURLまたは共有リンクを入力...">
-        <button onclick="handleLoadVideo()" class="btn-indigo">読込</button>
-      </div>
-
-      <!-- プレイヤー -->
-      <div class="video-frame-box">
-        <iframe id="videoIframe" src="[suspicious link removed]" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-      </div>
-
-      <!-- 再生操作バー -->
-      <div class="video-controls">
-        <div class="ctrl-row">
-          <div class="time-txt">
-            <span id="currentTimeDisplay">00:00</span>
-            <span style="color: #475569;">/</span>
-            <span id="durationDisplay" style="color: #94a3b8;">00:00</span>
-          </div>
-          <div style="display: flex; gap: 4px;">
-            <button onclick="setSpeed(0.5, this)" class="btn-ctrl" style="padding: 2px 6px; font-size: 10px;">0.5x</button>
-            <button onclick="setSpeed(0.75, this)" class="btn-ctrl" style="padding: 2px 6px; font-size: 10px;">0.75x</button>
-            <button onclick="setSpeed(1.0, this)" class="btn-ctrl" style="padding: 2px 6px; font-size: 10px; background: #6366f1;">1.0x</button>
-            <button onclick="setSpeed(1.25, this)" class="btn-ctrl" style="padding: 2px 6px; font-size: 10px;">1.25x</button>
-          </div>
+      
+      <!-- 左上段: OF / DF 巨大スイッチ -->
+      <div class="phase-switch-panel">
+        <div class="phase-title">
+          <span>現在の攻防フェーズ（タップで右側入力が変化）</span>
+          <span id="currentPhaseLabel" style="color: #818cf8; font-weight: bold;">【自チーム 攻撃中】</span>
         </div>
-
-        <div class="btn-ctrl-grid">
-          <button onclick="seekRelative(-10)" class="btn-ctrl">⏪ -10s</button>
-          <button onclick="seekRelative(-5)" class="btn-ctrl">◀ -5s</button>
-          <button onclick="togglePlayPause()" id="btnPlayPause" class="btn-indigo" style="font-size: 12px;">▶ 再生/停止</button>
-          <button onclick="seekRelative(5)" class="btn-ctrl">+5s ▶</button>
-          <button onclick="seekRelative(10)" class="btn-ctrl">+10s ⏩</button>
+        <div class="phase-btn-grid">
+          <button id="btnPhaseOF" onclick="setPhase('OF')" class="btn-phase active-of">
+            <span style="font-size: 20px;">⚔️</span>
+            <span>自チーム OF (攻撃)</span>
+          </button>
+          <button id="btnPhaseDF" onclick="setPhase('DF')" class="btn-phase">
+            <span style="font-size: 20px;">🛡️</span>
+            <span>自チーム DF (守備)</span>
+          </button>
         </div>
       </div>
 
-      <!-- 下段: 選手交代・コート選手一覧 -->
-      <div class="roster-card-section">
-        <div class="section-title">
-          <span>👥 出場選手・ポジション (タップして選択 / 交代)</span>
-          <span style="font-size: 10px; color: #6366f1;">※頻繁には変えません</span>
+      <!-- 左下段: 動画プレイヤー -->
+      <div class="video-section">
+        <div class="video-input-bar">
+          <input type="text" id="videoUrlInput" class="video-input" placeholder="YouTube動画のURLまたは共有リンクを入力...">
+          <button onclick="handleLoadVideo()" class="btn-indigo" style="padding: 6px 14px;">読込</button>
         </div>
 
-        <!-- コート上 -->
-        <div class="court-board">
-          <div class="gk-box">
-            <div style="font-size: 10px; color: #f59e0b; font-weight: bold; margin-bottom: 4px;">守護神 (GK)</div>
-            <div id="slot_GK" style="width: 100%;"></div>
-          </div>
-          <div class="field-lines">
-            <div class="field-row">
-              <div id="slot_LW"></div>
-              <div id="slot_PV"></div>
-              <div id="slot_RW"></div>
+        <div class="video-box">
+          <iframe id="videoIframe" src="[suspicious link removed]" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        </div>
+
+        <div class="video-controls">
+          <div class="ctrl-row">
+            <div class="time-txt">
+              <span id="currentTimeDisplay">00:00</span>
+              <span style="color: #475569;">/</span>
+              <span id="durationDisplay" style="color: #94a3b8;">00:00</span>
             </div>
-            <div class="field-row">
-              <div id="slot_LB"></div>
-              <div id="slot_CB"></div>
-              <div id="slot_RB"></div>
+            <div style="display: flex; gap: 4px;">
+              <button onclick="setSpeed(0.5, this)" class="btn-ctrl" style="padding: 2px 6px; font-size: 10px;">0.5x</button>
+              <button onclick="setSpeed(0.75, this)" class="btn-ctrl" style="padding: 2px 6px; font-size: 10px;">0.75x</button>
+              <button onclick="setSpeed(1.0, this)" class="btn-ctrl" style="padding: 2px 6px; font-size: 10px; background: #6366f1;">1.0x</button>
+              <button onclick="setSpeed(1.25, this)" class="btn-ctrl" style="padding: 2px 6px; font-size: 10px;">1.25x</button>
             </div>
           </div>
-        </div>
 
-        <!-- ベンチ -->
-        <div class="bench-box">
-          <div class="section-title" style="margin-bottom: 4px;">
-            <span>ベンチ控え選手</span>
-            <span id="swapAlert" style="color: #f59e0b; display: none;">入れ替えるコート選手をタップ</span>
+          <div class="btn-ctrl-grid">
+            <button onclick="seekRelative(-10)" class="btn-ctrl">⏪ -10s</button>
+            <button onclick="seekRelative(-5)" class="btn-ctrl">◀ -5s</button>
+            <button onclick="togglePlayPause()" id="btnPlayPause" class="btn-indigo" style="font-size: 12px;">▶ 再生/停止</button>
+            <button onclick="seekRelative(5)" class="btn-ctrl">+5s ▶</button>
+            <button onclick="seekRelative(10)" class="btn-ctrl">+10s ⏩</button>
           </div>
-          <div id="benchContainer" class="bench-list"></div>
         </div>
       </div>
+
     </section>
 
-    <!-- 右側 (50%): アクション入力・集計 -->
+    <!-- 右側 (50%): OF / DF 連動アクションボタン群 -->
     <section class="right-container">
-      <div class="right-nav-bar">
+      <div class="right-nav">
         <div class="tab-group">
           <button id="tabBtnInput" onclick="switchTab('input')" class="tab-btn active">⚡ 記録入力</button>
           <button id="tabBtnLogs" onclick="switchTab('logs')" class="tab-btn">📋 ログ (<span id="logCountBadge">0</span>)</button>
           <button id="tabBtnDashboard" onclick="switchTab('dashboard')" class="tab-btn">📊 試合データ・成績</button>
         </div>
-
-        <div class="team-toggle-box">
-          <button id="btnTeamHome" onclick="setActiveTeam('home')" class="team-btn active-home">自チーム</button>
-          <button id="btnTeamGuest" onclick="setActiveTeam('guest')" class="team-btn">相手チーム</button>
+        <div style="font-size: 11px; color: #94a3b8;">
+          入力モード: <strong id="modeIndicator" style="color: #818cf8;">自チーム攻撃</strong>
         </div>
       </div>
 
-      <!-- TAB 1: 入力 -->
+      <!-- TAB 1: 入力 (OF / DF でダイナミック変化) -->
       <div id="tabInput" class="right-content">
-        <!-- 選択選手バナー -->
-        <div class="status-banner">
-          <div>
-            <span style="font-size: 11px; color: #94a3b8;">記録対象:</span>
-            <span id="selectedPlayerLabel" class="target-highlight">未選択 (チーム全体の記録)</span>
+
+        <!-- ==================== A. 自チーム OF時の入力パネル ==================== -->
+        <div id="panelOF" style="display: flex; flex-direction: column; gap: 12px;">
+          <!-- 選手選択 -->
+          <div class="card-panel">
+            <div class="panel-header">
+              <span>👥 シュート/ミスした選手を選択 (未選択でも可)</span>
+              <button onclick="clearSelectedPlayer()" class="btn-secondary" style="font-size: 10px; padding: 2px 6px;">選択解除</button>
+            </div>
+            <div id="ofPlayerGrid" class="player-select-grid"></div>
           </div>
-          <button onclick="clearSelectedPlayer()" class="btn-secondary" style="padding: 4px 10px; font-size: 11px;">選択解除</button>
+
+          <!-- エリア選択 -->
+          <div class="card-panel">
+            <div class="panel-header">
+              <span>🎯 シュートエリア</span>
+              <span id="ofZoneLabel" style="color: #38bdf8;">6m中央</span>
+            </div>
+            <div class="zone-grid">
+              <button onclick="setZone('6m左', this)" class="btn-zone">6m左</button>
+              <button onclick="setZone('6m中央', this)" class="btn-zone active">6m中央</button>
+              <button onclick="setZone('6m右', this)" class="btn-zone">6m右</button>
+              <button onclick="setZone('速攻', this)" class="btn-zone">速攻</button>
+              <button onclick="setZone('9m左', this)" class="btn-zone">9m左</button>
+              <button onclick="setZone('9m中央', this)" class="btn-zone">9m中央</button>
+              <button onclick="setZone('9m右', this)" class="btn-zone">9m右</button>
+              <button onclick="setZone('7mスロー', this)" class="btn-zone">7mスロー</button>
+            </div>
+          </div>
+
+          <!-- シュート結果（特大ボタン） -->
+          <div class="card-panel" style="border-color: #059669;">
+            <div class="panel-header">
+              <span style="color: #10b981; font-size: 13px;">⚽ 自チームのシュート結果</span>
+              <span style="font-size: 10px; color: #64748b;">ワンタップで即時記録</span>
+            </div>
+            <div class="big-action-grid">
+              <button onclick="recordShoot('home', 'ゴール')" class="btn-big-action act-goal">
+                <span style="font-size: 20px;">⚽</span>
+                <span>ゴール</span>
+              </button>
+              <button onclick="recordShoot('home', 'GKセーブ')" class="btn-big-action act-save">
+                <span style="font-size: 20px;">🧤</span>
+                <span>セーブされる</span>
+              </button>
+              <button onclick="recordShoot('home', '枠外')" class="btn-big-action act-miss">
+                <span style="font-size: 20px;">🚫</span>
+                <span>枠外</span>
+              </button>
+              <button onclick="recordShoot('home', 'ポスト直撃')" class="btn-big-action act-post">
+                <span style="font-size: 20px;">🥅</span>
+                <span>ポスト</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- ターンオーバー（ミス） -->
+          <div class="card-panel" style="border-color: #f43f5e;">
+            <div class="panel-header">
+              <span style="color: #f43f5e;">⚠️ 自チームのターンオーバー (攻撃終了ミス)</span>
+            </div>
+            <div class="mistake-grid">
+              <button onclick="recordTurnover('home', 'パスミス')" class="btn-sub-action">パスミス</button>
+              <button onclick="recordTurnover('home', 'キャッチミス')" class="btn-sub-action">キャッチミス</button>
+              <button onclick="recordTurnover('home', 'ステップ')" class="btn-sub-action">ステップ</button>
+              <button onclick="recordTurnover('home', 'チャージング')" class="btn-sub-action">チャージング</button>
+              <button onclick="recordTurnover('home', 'ラインクロス')" class="btn-sub-action">ラインクロス</button>
+              <button onclick="recordTurnover('home', 'パッシブ')" class="btn-sub-action">パッシブ</button>
+              <button onclick="recordTurnover('home', 'その他ミス')" class="btn-sub-action">その他ミス</button>
+              <button onclick="recordFoul('home', 'オフェンス警告')" class="btn-sub-action" style="color: #fde047;">警告 (Y)</button>
+            </div>
+          </div>
         </div>
 
-        <!-- 1. シュートエリア選択 (押しやすい大型ボタン) -->
-        <div class="zone-container">
-          <div class="section-title">
-            <span>1. シュートエリア選択</span>
-            <span id="currentZoneBadge" style="color: #38bdf8; font-weight: bold;">選択中: 6m中央</span>
+        <!-- ==================== B. 自チーム DF時の入力パネル ==================== -->
+        <div id="panelDF" style="display: none; flex-direction: column; gap: 12px;">
+          <!-- 自チームGK情報 -->
+          <div class="card-panel" style="border-color: #f59e0b; background: #1c1917;">
+            <div class="panel-header">
+              <span style="color: #fbbf24; font-size: 13px;">🧤 現在の守護神 (自チームGK)</span>
+              <span id="currentGkBadge" style="font-weight: bold; color: #fff;">#1 自チームGK</span>
+            </div>
+            <div style="font-size: 11px; color: #94a3b8;">
+              相手のシュートをセーブした場合は下の「自GKセーブ！」を押してください。
+            </div>
           </div>
-          <div class="zone-grid">
-            <button onclick="setZone('6m左', this)" class="btn-zone-large">6m左</button>
-            <button onclick="setZone('6m中央', this)" class="btn-zone-large active">6m中央</button>
-            <button onclick="setZone('6m右', this)" class="btn-zone-large">6m右</button>
-            <button onclick="setZone('速攻', this)" class="btn-zone-large">速攻</button>
-            <button onclick="setZone('9m左', this)" class="btn-zone-large">9m左</button>
-            <button onclick="setZone('9m中央', this)" class="btn-zone-large">9m中央</button>
-            <button onclick="setZone('9m右', this)" class="btn-zone-large">9m右</button>
-            <button onclick="setZone('7mスロー', this)" class="btn-zone-large">7mスロー</button>
+
+          <!-- 相手のシュート結果（特大ボタン） -->
+          <div class="card-panel" style="border-color: #e11d48;">
+            <div class="panel-header">
+              <span style="color: #fb7185; font-size: 13px;">💥 相手チームのシュート結果</span>
+              <span style="font-size: 10px; color: #64748b;">失点またはGK阻止</span>
+            </div>
+            <div class="big-action-grid">
+              <button onclick="recordShoot('guest', 'GKセーブ')" class="btn-big-action act-save" style="border: 2px solid #fbbf24;">
+                <span style="font-size: 20px;">🧤</span>
+                <span>自GKセーブ！</span>
+              </button>
+              <button onclick="recordShoot('guest', 'ゴール')" class="btn-big-action act-miss">
+                <span style="font-size: 20px;">❌</span>
+                <span>被ゴール (失点)</span>
+              </button>
+              <button onclick="recordShoot('guest', '枠外')" class="btn-big-action" style="background: #334155;">
+                <span style="font-size: 20px;">💨</span>
+                <span>相手枠外</span>
+              </button>
+              <button onclick="recordShoot('guest', 'ポスト直撃')" class="btn-big-action act-post">
+                <span style="font-size: 20px;">🥅</span>
+                <span>相手ポスト</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 守備成功 / 相手のミス -->
+          <div class="card-panel" style="border-color: #10b981;">
+            <div class="panel-header">
+              <span style="color: #34d399;">🛡️ 守備成功 (相手のターンオーバー・ミス)</span>
+            </div>
+            <div class="mistake-grid">
+              <button onclick="recordTurnover('guest', 'スティール/パスカット')" class="btn-sub-action" style="color: #34d399; font-weight: bold;">スティール/奪取</button>
+              <button onclick="recordTurnover('guest', '相手ミス誘発')" class="btn-sub-action" style="color: #34d399;">相手ミス誘発</button>
+              <button onclick="recordTurnover('guest', 'チャージング獲得')" class="btn-sub-action" style="color: #34d399;">チャージング獲得</button>
+              <button onclick="recordTurnover('guest', '相手パッシブ')" class="btn-sub-action" style="color: #34d399;">パッシブ奪取</button>
+            </div>
+          </div>
+
+          <!-- 自チームのDF反則 -->
+          <div class="card-panel" style="border-color: #7f1d1d;">
+            <div class="panel-header">
+              <span style="color: #fca5a5;">⚠️ 自チームのDF反則 (ペナルティ)</span>
+            </div>
+            <div class="mistake-grid" style="grid-template-columns: repeat(4, 1fr);">
+              <button onclick="recordFoul('home', '警告(Y)')" class="btn-foul-action" style="color: #fde047;">警告 (Y)</button>
+              <button onclick="recordFoul('home', '2分退場')" class="btn-foul-action">2分退場</button>
+              <button onclick="recordFoul('home', 'レッド(失格)')" class="btn-foul-action">レッド(失格)</button>
+              <button onclick="recordFoul('home', 'ブルー(追放)')" class="btn-foul-action" style="border-color: #1d4ed8; color: #93c5fd;">ブルー(追放)</button>
+            </div>
           </div>
         </div>
 
-        <!-- 2. シュート結果 (超特大ボタンで最優先タップ) -->
-        <div class="result-container">
-          <div class="section-title">
-            <span style="color: #10b981;">2. シュート結果記録</span>
-            <span style="font-size: 10px; color: #64748b;">ワンタップで即時記録</span>
-          </div>
-          <div class="result-grid">
-            <button onclick="recordEvent('シュート', 'ゴール')" class="btn-result-huge res-goal">
-              <span style="font-size: 18px;">⚽</span>
-              <span>ゴール</span>
-            </button>
-            <button onclick="recordEvent('シュート', 'GKセーブ')" class="btn-result-huge res-save">
-              <span style="font-size: 18px;">🧤</span>
-              <span>GKセーブ</span>
-            </button>
-            <button onclick="recordEvent('シュート', '枠外')" class="btn-result-huge res-miss">
-              <span style="font-size: 18px;">🚫</span>
-              <span>枠外</span>
-            </button>
-            <button onclick="recordEvent('シュート', 'ポスト直撃')" class="btn-result-huge res-post">
-              <span style="font-size: 18px;">🥅</span>
-              <span>ポスト</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- 3. ターンオーバー & DF反則 -->
-        <div class="mistake-container">
-          <div class="section-title">
-            <span style="color: #f43f5e;">3. ターンオーバー & 反則</span>
-          </div>
-          <div class="mistake-grid">
-            <button onclick="recordEvent('ターンオーバー', 'パスミス')" class="btn-mistake">パスミス</button>
-            <button onclick="recordEvent('ターンオーバー', 'キャッチミス')" class="btn-mistake">キャッチミス</button>
-            <button onclick="recordEvent('ターンオーバー', 'ステップ')" class="btn-mistake">ステップ</button>
-            <button onclick="recordEvent('ターンオーバー', 'チャージング')" class="btn-mistake">チャージング</button>
-            <button onclick="recordEvent('ターンオーバー', 'ラインクロス')" class="btn-mistake">ラインクロス</button>
-            <button onclick="recordEvent('ターンオーバー', 'パッシブ')" class="btn-mistake">パッシブ</button>
-            <button onclick="recordEvent('ターンオーバー', 'その他ミス')" class="btn-mistake">その他ミス</button>
-            <button onclick="recordEvent('DF反則', '警告(Y)')" class="btn-mistake" style="color: #fde047;">警告 (Y)</button>
-          </div>
-          <div class="foul-grid">
-            <button onclick="recordEvent('DF反則', '2分退場')" class="btn-foul-btn">2分退場</button>
-            <button onclick="recordEvent('DF反則', 'レッド(失格)')" class="btn-foul-btn">レッド(失格)</button>
-            <button onclick="recordEvent('DF反則', 'ブルー(追放)')" class="btn-foul-btn" style="border-color: #1d4ed8; color: #93c5fd;">ブルー(追放)</button>
-          </div>
-        </div>
       </div>
 
       <!-- TAB 2: ログ -->
@@ -632,18 +614,9 @@
             <tbody id="homePlayerStatsBody"></tbody>
           </table>
         </div>
-
-        <h4 style="color: #fb7185; margin-bottom: 4px;">相手チーム 個人成績一覧</h4>
-        <div class="table-box">
-          <table class="stats-table">
-            <thead>
-              <tr><th>#</th><th>選手名</th><th>得点/試投</th><th>決定率</th><th>TO</th><th>退場</th><th>GK阻止率</th></tr>
-            </thead>
-            <tbody id="guestPlayerStatsBody"></tbody>
-          </table>
-        </div>
       </div>
     </section>
+
   </main>
 
   <!-- ==================== ロースター設定 & 初期化モーダル ==================== -->
@@ -668,7 +641,6 @@
         <textarea id="bulkRosterHome" rows="6" class="video-input" style="width: 100%; resize: vertical; font-family: monospace;"></textarea>
       </div>
 
-      <!-- 初期化ボタン -->
       <div style="background: rgba(225, 29, 72, 0.1); border: 1px solid #7f1d1d; padding: 10px; border-radius: 6px; margin-bottom: 14px;">
         <div style="font-size: 11px; color: #fca5a5; font-weight: bold; margin-bottom: 4px;">🔄 ロースター初期化</div>
         <p style="font-size: 10px; color: #cbd5e1; margin-bottom: 6px;">選手名や背番号の変更を消去し、最初の初期状態に戻します。</p>
@@ -677,7 +649,7 @@
 
       <div style="display: flex; justify-content: flex-end; gap: 8px;">
         <button onclick="closeRosterModal()" class="btn-secondary">閉じる</button>
-        <button onclick="saveRosterSettings()" class="btn-indigo">設定を反映</button>
+        <button onclick="saveRosterSettings()" class="btn-indigo" style="padding: 6px 14px;">設定を反映</button>
       </div>
     </div>
   </div>
@@ -686,7 +658,6 @@
 
   <!-- ==================== JAVASCRIPT ==================== -->
   <script>
-    // デフォルトロースター定義（初期化用）
     const DEFAULT_TEAMS = {
       home: {
         name: '自チーム',
@@ -706,40 +677,195 @@
           LW: { number: '13', name: '相手13' }, PV: { number: '14', name: '相手14' }, RW: { number: '15', name: '相手15' },
           LB: { number: '17', name: '相手17' }, CB: { number: '18', name: '相手18' }, RB: { number: '19', name: '相手19' }
         },
-        bench: [
-          { number: '20', name: '相手控え20' }, { number: '21', name: '相手控え21' }
-        ]
+        bench: []
       }
     };
 
     let teamsData = JSON.parse(JSON.stringify(DEFAULT_TEAMS));
-    let activeTeamKey = 'home';
+    let currentPhase = 'OF'; // 'OF' or 'DF'
     let selectedPlayer = null;
     let selectedZone = '6m中央';
-    let swapCandidate = null;
     let logs = [];
     let currentVideoTime = 0;
     let isPlaying = false;
     let timerInterval = null;
 
-    // --- ロースター初期化機能 ---
-    function resetRosterToDefault() {
-      if (confirm("選手名・背番号を最初の初期状態に戻しますか？")) {
-        teamsData = JSON.parse(JSON.stringify(DEFAULT_TEAMS));
-        saveLocal();
-        renderFormation();
-        updateDashboard();
-        closeRosterModal();
-        showToast("ロースターを初期化しました");
+    // --- OF / DF フェーズ切り替え ---
+    function setPhase(phase) {
+      currentPhase = phase;
+      selectedPlayer = null;
+
+      const btnOF = document.getElementById('btnPhaseOF');
+      const btnDF = document.getElementById('btnPhaseDF');
+      const panelOF = document.getElementById('panelOF');
+      const panelDF = document.getElementById('panelDF');
+      const label = document.getElementById('currentPhaseLabel');
+      const mode = document.getElementById('modeIndicator');
+
+      if (phase === 'OF') {
+        btnOF.className = "btn-phase active-of";
+        btnDF.className = "btn-phase";
+        panelOF.style.display = "flex";
+        panelDF.style.display = "none";
+        label.textContent = "【自チーム 攻撃中】";
+        label.style.color = "#818cf8";
+        mode.textContent = "自チーム攻撃";
+        mode.style.color = "#818cf8";
+      } else {
+        btnDF.className = "btn-phase active-df";
+        btnOF.className = "btn-phase";
+        panelDF.style.display = "flex";
+        panelOF.style.display = "none";
+        label.textContent = "【自チーム 守備中】";
+        label.style.color = "#f43f5e";
+        mode.textContent = "自チーム守備";
+        mode.style.color = "#f43f5e";
+      }
+      renderPlayerButtons();
+    }
+
+    // --- 選手選択ボタン描画 ---
+    function renderPlayerButtons() {
+      const grid = document.getElementById('ofPlayerGrid');
+      grid.innerHTML = '';
+      const t = teamsData.home;
+      const positions = ['LW', 'PV', 'RW', 'LB', 'CB', 'RB'];
+
+      positions.forEach(pos => {
+        const p = t.court[pos];
+        const isSel = selectedPlayer && selectedPlayer.pos === pos;
+        const btn = document.createElement('div');
+        btn.className = `p-btn ${isSel ? 'active' : ''}`;
+        btn.innerHTML = `<div class="p-btn-num">#${p.number}</div><div class="p-btn-name">${p.name}</div>`;
+        btn.onclick = () => {
+          selectedPlayer = (selectedPlayer && selectedPlayer.pos === pos) ? null : { ...p, pos: pos };
+          renderPlayerButtons();
+        };
+        grid.appendChild(btn);
+      });
+
+      document.getElementById('currentGkBadge').textContent = `#${t.gk.number} ${t.gk.name}`;
+    }
+
+    function clearSelectedPlayer() {
+      selectedPlayer = null;
+      renderPlayerButtons();
+    }
+
+    function setZone(zone, btn) {
+      selectedZone = zone;
+      document.querySelectorAll('.btn-zone').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('ofZoneLabel').textContent = zone;
+    }
+
+    // --- アクション記録 ---
+    function recordShoot(teamKey, result) {
+      const team = teamsData[teamKey];
+      const oppKey = teamKey === 'home' ? 'guest' : 'home';
+      const oppGk = teamsData[oppKey].gk;
+
+      let pNum = '-';
+      let pName = 'チーム';
+      if (teamKey === 'home' && selectedPlayer) {
+        pNum = selectedPlayer.number;
+        pName = selectedPlayer.name;
+      } else if (teamKey === 'guest') {
+        pNum = '相手';
+        pName = '相手シュート';
+      }
+
+      const log = {
+        id: Date.now() + Math.random().toString(36).substr(2, 4),
+        sec: currentVideoTime,
+        timeStr: formatTime(currentVideoTime),
+        team: teamKey,
+        teamName: team.name,
+        num: pNum,
+        name: pName,
+        category: 'シュート',
+        result: result,
+        zone: selectedZone,
+        oppGkNum: oppGk.number,
+        oppGkName: oppGk.name
+      };
+
+      logs.unshift(log);
+      saveLocal();
+      renderLogs();
+      updateDashboard();
+      showToast(`記録: ${team.name} ${result}`);
+
+      // ゴールが決まったら自動で攻防交代（親切アシスト）
+      if (result === 'ゴール') {
+        setPhase(currentPhase === 'OF' ? 'DF' : 'OF');
       }
     }
 
-    // --- YouTube URL解析 & プレイヤー制御 ---
+    function recordTurnover(teamKey, detail) {
+      const team = teamsData[teamKey];
+      let pNum = '-';
+      let pName = 'チーム';
+      if (teamKey === 'home' && selectedPlayer) {
+        pNum = selectedPlayer.number;
+        pName = selectedPlayer.name;
+      }
+
+      const log = {
+        id: Date.now() + Math.random().toString(36).substr(2, 4),
+        sec: currentVideoTime,
+        timeStr: formatTime(currentVideoTime),
+        team: teamKey,
+        teamName: team.name,
+        num: pNum,
+        name: pName,
+        category: 'ターンオーバー',
+        result: detail,
+        zone: '-',
+        oppGkNum: '-',
+        oppGkName: '-'
+      };
+
+      logs.unshift(log);
+      saveLocal();
+      renderLogs();
+      updateDashboard();
+      showToast(`ミス記録: ${team.name} ${detail}`);
+
+      // ターンオーバー発生で攻防交代
+      setPhase(currentPhase === 'OF' ? 'DF' : 'OF');
+    }
+
+    function recordFoul(teamKey, foulType) {
+      const team = teamsData[teamKey];
+      const log = {
+        id: Date.now() + Math.random().toString(36).substr(2, 4),
+        sec: currentVideoTime,
+        timeStr: formatTime(currentVideoTime),
+        team: teamKey,
+        teamName: team.name,
+        num: selectedPlayer ? selectedPlayer.number : '-',
+        name: selectedPlayer ? selectedPlayer.name : 'チーム',
+        category: 'DF反則',
+        result: foulType,
+        zone: '-',
+        oppGkNum: '-',
+        oppGkName: '-'
+      };
+
+      logs.unshift(log);
+      saveLocal();
+      renderLogs();
+      updateDashboard();
+      showToast(`反則記録: ${team.name} ${foulType}`);
+    }
+
+    // --- YouTube プレイヤー操作 ---
     function extractYouTubeId(url) {
       if (!url) return null;
       url = url.trim();
       const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|live\/|shorts\/))([\w-]{11})/);
-      if (match && match[1]) return match[1];
+      if (match && match) return match;
       if (/^[\w-]{11}$/.test(url)) return url;
       return null;
     }
@@ -798,162 +924,7 @@
       document.getElementById('currentTimeDisplay').textContent = formatTime(currentVideoTime);
     }
 
-    // --- フォーメーション & 選手交代 ---
-    function setActiveTeam(teamKey) {
-      activeTeamKey = teamKey;
-      selectedPlayer = null;
-      swapCandidate = null;
-      document.getElementById('btnTeamHome').className = teamKey === 'home' ? "team-btn active-home" : "team-btn";
-      document.getElementById('btnTeamGuest').className = teamKey === 'guest' ? "team-btn active-guest" : "team-btn";
-      updatePlayerBadge();
-      renderFormation();
-    }
-
-    function renderFormation() {
-      const team = teamsData[activeTeamKey];
-      const positions = ['LW', 'PV', 'RW', 'LB', 'CB', 'RB'];
-
-      positions.forEach(pos => {
-        const p = team.court[pos];
-        const slot = document.getElementById(`slot_${pos}`);
-        const isSel = selectedPlayer && !selectedPlayer.isGk && selectedPlayer.pos === pos;
-        slot.innerHTML = `
-          <div onclick="clickCourtPlayer('${pos}')" class="p-card ${isSel ? 'active' : ''}">
-            <div class="p-pos">${pos}</div>
-            <div class="p-num">#${p.number}</div>
-            <div class="p-name">${p.name}</div>
-          </div>
-        `;
-      });
-
-      const gk = team.gk;
-      const isGkSel = selectedPlayer && selectedPlayer.isGk;
-      document.getElementById('slot_GK').innerHTML = `
-        <div onclick="clickGk()" class="p-card is-gk ${isGkSel ? 'active' : ''}">
-          <div class="p-num" style="color: #fbbf24;">#${gk.number}</div>
-          <div class="p-name" style="color: #fde68a;">${gk.name}</div>
-        </div>
-      `;
-
-      const benchBox = document.getElementById('benchContainer');
-      benchBox.innerHTML = '';
-      team.bench.forEach((b, idx) => {
-        const isSel = selectedPlayer && selectedPlayer.isBench && selectedPlayer.benchIdx === idx;
-        const div = document.createElement('div');
-        div.className = `bench-item ${isSel ? 'active' : ''}`;
-        div.innerHTML = `
-          <span style="font-weight: bold; color: #fff;">#${b.number}</span>
-          <span>${b.name}</span>
-          <button onclick="triggerSwap(event, ${idx})" style="background:#0f172a; color:#a5b4fc; font-size:9px; padding:1px 5px; border-radius:3px;">交代</button>
-        `;
-        div.onclick = (e) => {
-          if (e.target.tagName !== 'BUTTON') clickBenchPlayer(idx);
-        };
-        benchBox.appendChild(div);
-      });
-    }
-
-    function clickCourtPlayer(pos) {
-      if (swapCandidate !== null) {
-        executeSwap(swapCandidate, pos);
-        return;
-      }
-      const p = teamsData[activeTeamKey].court[pos];
-      selectedPlayer = (selectedPlayer && selectedPlayer.pos === pos && !selectedPlayer.isGk)
-        ? null : { ...p, pos: pos, isGk: false, isBench: false };
-      updatePlayerBadge();
-      renderFormation();
-    }
-
-    function clickGk() {
-      const gk = teamsData[activeTeamKey].gk;
-      selectedPlayer = (selectedPlayer && selectedPlayer.isGk)
-        ? null : { ...gk, isGk: true, isBench: false };
-      updatePlayerBadge();
-      renderFormation();
-    }
-
-    function clickBenchPlayer(idx) {
-      const b = teamsData[activeTeamKey].bench[idx];
-      selectedPlayer = (selectedPlayer && selectedPlayer.isBench && selectedPlayer.benchIdx === idx)
-        ? null : { ...b, isBench: true, benchIdx: idx, isGk: false };
-      updatePlayerBadge();
-      renderFormation();
-    }
-
-    function triggerSwap(e, idx) {
-      e.stopPropagation();
-      swapCandidate = idx;
-      document.getElementById('swapAlert').style.display = 'inline';
-      showToast("交代するコート選手をタップしてください");
-    }
-
-    function executeSwap(benchIdx, courtPos) {
-      const team = teamsData[activeTeamKey];
-      const courtP = team.court[courtPos];
-      const benchP = team.bench[benchIdx];
-      team.court[courtPos] = benchP;
-      team.bench[benchIdx] = courtP;
-      swapCandidate = null;
-      selectedPlayer = null;
-      document.getElementById('swapAlert').style.display = 'none';
-      saveLocal();
-      renderFormation();
-      updatePlayerBadge();
-      showToast(`交代完了: #${benchP.number} がコートイン`);
-    }
-
-    function clearSelectedPlayer() {
-      selectedPlayer = null;
-      updatePlayerBadge();
-      renderFormation();
-    }
-
-    function updatePlayerBadge() {
-      const lbl = document.getElementById('selectedPlayerLabel');
-      if (selectedPlayer) {
-        const pos = selectedPlayer.isGk ? 'GK' : (selectedPlayer.pos || '控');
-        lbl.textContent = `#${selectedPlayer.number} ${selectedPlayer.name} (${pos})`;
-      } else {
-        lbl.textContent = `未選択 (チーム全体の記録)`;
-      }
-    }
-
-    function setZone(zone, btn) {
-      selectedZone = zone;
-      document.querySelectorAll('.btn-zone-large').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      document.getElementById('currentZoneBadge').textContent = `選択中: ${zone}`;
-    }
-
-    // --- イベント記録 ---
-    function recordEvent(category, result) {
-      const team = teamsData[activeTeamKey];
-      const oppKey = activeTeamKey === 'home' ? 'guest' : 'home';
-      const oppGk = teamsData[oppKey].gk;
-
-      const log = {
-        id: Date.now() + Math.random().toString(36).substr(2, 4),
-        sec: currentVideoTime,
-        timeStr: formatTime(currentVideoTime),
-        team: activeTeamKey,
-        teamName: team.name,
-        num: selectedPlayer ? selectedPlayer.number : '-',
-        name: selectedPlayer ? selectedPlayer.name : 'チーム',
-        category: category,
-        result: result,
-        zone: category === 'シュート' ? selectedZone : '-',
-        oppGkNum: category === 'シュート' ? oppGk.number : '-',
-        oppGkName: category === 'シュート' ? oppGk.name : '-'
-      };
-
-      logs.unshift(log);
-      saveLocal();
-      renderLogs();
-      updateDashboard();
-      showToast(`記録: #${log.num} ${result}`);
-    }
-
+    // --- ログ & ダッシュボード描画 ---
     function deleteLastLog() {
       if (logs.length === 0) return;
       logs.shift();
@@ -1041,7 +1012,6 @@
       document.getElementById('dashGuestGK').textContent = `${gSaves}/${hAtt} (${gGkPct}%)`;
 
       renderPlayerStats(hLogs, 'homePlayerStatsBody', gShots);
-      renderPlayerStats(gLogs, 'guestPlayerStatsBody', hShots);
     }
 
     function renderPlayerStats(teamLogs, containerId, oppShots) {
@@ -1085,7 +1055,7 @@
       if (tabId === 'dashboard') updateDashboard();
     }
 
-    // CSVエクスポート
+    // --- CSVエクスポート ---
     function exportCSV() {
       if (logs.length === 0) { showToast("出力するログがありません"); return; }
       const headers = ["ID", "秒数", "表示時間", "チームID", "チーム名", "背番号", "選手名", "区分", "結果", "エリア", "相手GK番号", "相手GK名"];
@@ -1103,7 +1073,7 @@
       showToast("CSVファイルを出力しました");
     }
 
-    // 設定モーダル
+    // --- 設定モーダル ---
     function openRosterModal() {
       document.getElementById('inputHomeName').value = teamsData.home.name;
       document.getElementById('inputGuestName').value = teamsData.guest.name;
@@ -1117,6 +1087,17 @@
 
     function closeRosterModal() { document.getElementById('rosterModal').style.display = 'none'; }
 
+    function resetRosterToDefault() {
+      if (confirm("選手名・背番号を初期状態に戻しますか？")) {
+        teamsData = JSON.parse(JSON.stringify(DEFAULT_TEAMS));
+        saveLocal();
+        renderPlayerButtons();
+        updateDashboard();
+        closeRosterModal();
+        showToast("ロースターを初期化しました");
+      }
+    }
+
     function saveRosterSettings() {
       const hName = document.getElementById('inputHomeName').value.trim();
       const gName = document.getElementById('inputGuestName').value.trim();
@@ -1127,18 +1108,18 @@
       if (lines.length >= 7) {
         const parsed = lines.map(line => {
           const parts = line.split(/[\s,]+/);
-          const num = parts[0] || '?';
+          const num = parts || '?';
           const name = parts.slice(1).join(' ') || `選手${num}`;
           return { number: num, name: name };
         });
-        teamsData.home.gk = parsed[0];
+        teamsData.home.gk = parsed;
         const positions = ['LW', 'PV', 'RW', 'LB', 'CB', 'RB'];
         positions.forEach((pos, i) => { teamsData.home.court[pos] = parsed[i + 1]; });
         teamsData.home.bench = parsed.slice(7);
       }
 
       saveLocal();
-      renderFormation();
+      renderPlayerButtons();
       updateDashboard();
       closeRosterModal();
       showToast("設定を反映しました");
@@ -1146,15 +1127,15 @@
 
     function saveLocal() {
       try {
-        localStorage.setItem('hb_split_teams', JSON.stringify(teamsData));
-        localStorage.setItem('hb_split_logs', JSON.stringify(logs));
+        localStorage.setItem('hb_ofdf_teams', JSON.stringify(teamsData));
+        localStorage.setItem('hb_ofdf_logs', JSON.stringify(logs));
       } catch(e) {}
     }
 
     function loadLocal() {
       try {
-        const t = localStorage.getItem('hb_split_teams');
-        const l = localStorage.getItem('hb_split_logs');
+        const t = localStorage.getItem('hb_ofdf_teams');
+        const l = localStorage.getItem('hb_ofdf_logs');
         if (t) teamsData = JSON.parse(t);
         if (l) logs = JSON.parse(l);
       } catch(e) {}
@@ -1193,7 +1174,7 @@
 
     window.onload = function() {
       loadLocal();
-      setActiveTeam('home');
+      setPhase('OF');
       renderLogs();
       updateDashboard();
     };
